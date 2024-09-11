@@ -2,6 +2,7 @@ import { HttpException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { ValidDataDto } from './dtos/ValidData.dto';
+import { ValidUrlDto } from './dtos/ValidUrl.dto';
 import { Urls } from './schemas/Urls.schema';
 import { verifiedShortUrls } from './constants';
 
@@ -23,7 +24,7 @@ export class AppService {
       throw new HttpException('something is wrong with the url', 404);
     }
   }
-  findShortUrl(fullUrl: string) {
+  findShortUrl(fullUrl: ValidUrlDto) {
     return this.urlModel.findOne({ url: fullUrl });
   }
   findFullUrl(shortUrl: string) {
