@@ -1,1 +1,1 @@
-export const verfiedShortUrls = []
+export const verifiedShortUrls = [];

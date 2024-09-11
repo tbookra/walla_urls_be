@@ -23,10 +23,9 @@ export class AppController {
     if (!shortUrl) throw new HttpException('no url found', 404);
     return shortUrl;
   }
+
   @Get('get_full_url/:short_url')
   async getFullUrl(@Param('short_url') short_url: string) {
-    console.log('short_url', short_url);
-
     const longUrl = await this.appService.findFullUrl(short_url);
     if (!longUrl) throw new HttpException('no url found', 404);
     return longUrl;
@@ -35,23 +34,19 @@ export class AppController {
   @Post()
   @UsePipes(new ValidationPipe())
   createUrl(@Body() urlDataDto: ValidUrlDto) {
-    // const rand = this.revisedRandId();
-    // try {
     return this.appService.createUrl({ url: urlDataDto.url });
-    // } catch (error) {
-    //   throw new HttpException('something is wrong with the url', 404);
-    // }
   }
 
   @Get('/*')
-  catchAll(@Req() req: Request) {
-    `${req.protocol}://${req.get('Host')}${req.originalUrl}`;
+  async catchAll(@Req() req: Request) {
+    const shortUrl = req.originalUrl.substring(1);
+    const longUrl = await this.appService.findFullUrl(shortUrl);
+
     return {
-      protocol: req.protocol,
-      host: req.get('Host'),
-      origin: req.originalUrl,
+      origin: longUrl,
     };
   }
+  
   revisedRandId() {
     return Math.random()
       .toString(36)

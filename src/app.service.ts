@@ -3,19 +3,21 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { ValidDataDto } from './dtos/ValidData.dto';
 import { Urls } from './schemas/Urls.schema';
-import { verfiedShortUrls } from './constants';
+import { verifiedShortUrls } from './constants';
 
 @Injectable()
 export class AppService {
   constructor(@InjectModel(Urls.name) private urlModel: Model<Urls>) {}
   async createUrl(createUrlDto: ValidDataDto) {
     try {
-      if (verfiedShortUrls.length === 0) {
-        await this.refillVerfiedShortUrls(1);
+      if (verifiedShortUrls.length === 0) {
+        await this.refillVerifiedShortUrls(1);
       }
-      const shortUrl = verfiedShortUrls.shift();
+      const shortUrl = verifiedShortUrls.shift();
       const newUrl = new this.urlModel({ ...createUrlDto, shortUrl });
-      this.refillVerfiedShortUrls(100);
+      if (verifiedShortUrls.length < 80) {
+        this.refillVerifiedShortUrls(100);
+      }
       return newUrl.save();
     } catch (error) {
       throw new HttpException('something is wrong with the url', 404);
@@ -27,16 +29,16 @@ export class AppService {
   findFullUrl(shortUrl: string) {
     return this.urlModel.findOne({ shortUrl: shortUrl });
   }
-  async refillVerfiedShortUrls(length: number) {
+  async refillVerifiedShortUrls(verifiedMinLength: number) {
     const rand = this.revisedRandId();
     const exists = await this.findFullUrl(rand);
     if (exists) {
-      await this.refillVerfiedShortUrls(length);
+      await this.refillVerifiedShortUrls(verifiedMinLength);
     } else {
-      verfiedShortUrls.push(rand);
+      verifiedShortUrls.push(rand);
     }
-    if (verfiedShortUrls.length < length) {
-      await this.refillVerfiedShortUrls(length);
+    if (verifiedShortUrls.length < verifiedMinLength) {
+      await this.refillVerifiedShortUrls(verifiedMinLength);
     }
   }
   revisedRandId() {
