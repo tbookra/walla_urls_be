@@ -1,0 +1,28 @@
+version: '3'
+services:
+  # MongoDB Service
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+
+  # Node.js Service
+  nodejs:
+    build: .   # Path to the directory where your Node.js app's Dockerfile is
+    container_name: gifted_sinoussi
+    ports:
+      - "3000:3000"
+    environment:
+      MONGO_URL: mongodb://127.0.0.1:27017/short_urls
+    depends_on:
+      - mongodb
+
+volumes:
+  mongo-data:
+

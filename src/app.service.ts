@@ -24,14 +24,14 @@ export class AppService {
       throw new HttpException('something is wrong with the url', 404);
     }
   }
-  findShortUrl(fullUrl: ValidUrlDto) {
+  findShortUrl(fullUrl: string) {
     return this.urlModel.findOne({ url: fullUrl });
   }
   findFullUrl(shortUrl: string) {
     return this.urlModel.findOne({ shortUrl: shortUrl });
   }
   async refillVerifiedShortUrls(verifiedMinLength: number) {
-    const rand = this.revisedRandId();
+    const rand = this.makeid(7);
     const exists = await this.findFullUrl(rand);
     if (exists) {
       await this.refillVerifiedShortUrls(verifiedMinLength);
@@ -42,10 +42,16 @@ export class AppService {
       await this.refillVerifiedShortUrls(verifiedMinLength);
     }
   }
-  revisedRandId() {
-    return Math.random()
-      .toString(36)
-      .replace(/[^a-z]+/g, '')
-      .substr(2, 10);
+  makeid(length) {
+    let result = '';
+    const characters =
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const charactersLength = characters.length;
+    let counter = 0;
+    while (counter < length) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+      counter += 1;
+    }
+    return result;
   }
 }
