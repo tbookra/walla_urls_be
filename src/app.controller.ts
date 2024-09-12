@@ -14,11 +14,14 @@ import { AppService } from './app.service';
 import { Request } from 'express';
 import { ValidUrlDto } from './dtos/ValidUrl.dto';
 import { ApiProperty } from '@nestjs/swagger';
-import SimpleCrypto from 'simple-crypto-js';
+import * as dns from 'dns';
+import { promisify } from 'util';
+// const dns = require('dns');
 
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
+  private dnsLookup = promisify(dns.lookup);
 
   @ApiProperty({
     description:
@@ -30,10 +33,7 @@ export class AppController {
     @Param('protocol') protocol: string,
     @Param('rest') rest: string,
   ) {
-    console.log('full_url', protocol);
-    console.log('rest', rest);
     const full_url = `${protocol}://${rest}`;
-
     const shortUrl = await this.appService.findShortUrl(full_url);
     if (!shortUrl) throw new HttpException('no url found', 404);
     return shortUrl;
@@ -45,8 +45,6 @@ export class AppController {
   })
   @Get('get_full_url/:short_url')
   async getFullUrl(@Param('short_url') short_url: string) {
-    console.log('short_url', short_url);
-
     const longUrl = await this.appService.findFullUrl(short_url);
     if (!longUrl) throw new HttpException('no url found', 404);
     return longUrl;
@@ -54,7 +52,16 @@ export class AppController {
 
   @Post()
   @UsePipes(new ValidationPipe())
-  createUrl(@Body() urlDataDto: ValidUrlDto) {
+  async createUrl(@Body() urlDataDto: ValidUrlDto) {
+    console.log('urlDataDto.url', urlDataDto.url.split('://')[1].split('/')[0]);
+
+    try {
+      const address = await this.dnsLookup(
+        urlDataDto.url.split('://')[1].split('/')[0],
+      );
+    } catch (error) {
+      return { error: 'domain not exists' };
+    }
     return this.appService.createUrl({ url: urlDataDto.url });
   }
 
