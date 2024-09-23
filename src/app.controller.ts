@@ -53,8 +53,6 @@ export class AppController {
   @Post()
   @UsePipes(new ValidationPipe())
   async createUrl(@Body() urlDataDto: ValidUrlDto) {
-    console.log('urlDataDto.url', urlDataDto.url.split('://')[1].split('/')[0]);
-
     try {
       const address = await this.dnsLookup(
         urlDataDto.url.split('://')[1].split('/')[0],
