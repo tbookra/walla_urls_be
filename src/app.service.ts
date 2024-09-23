@@ -2,7 +2,6 @@ import { HttpException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { ValidDataDto } from './dtos/ValidData.dto';
-import { ValidUrlDto } from './dtos/ValidUrl.dto';
 import { Urls } from './schemas/Urls.schema';
 import { verifiedShortUrls } from './constants';
 
@@ -31,7 +30,7 @@ export class AppService {
     return this.urlModel.findOne({ shortUrl: shortUrl });
   }
   async refillVerifiedShortUrls(verifiedMinLength: number) {
-    const rand = this.makeid(7);
+    const rand = this.makeId(7);
     const exists = await this.findFullUrl(rand);
     if (exists) {
       await this.refillVerifiedShortUrls(verifiedMinLength);
@@ -42,7 +41,7 @@ export class AppService {
       await this.refillVerifiedShortUrls(verifiedMinLength);
     }
   }
-  makeid(length) {
+  makeId(length) {
     let result = '';
     const characters =
       'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';

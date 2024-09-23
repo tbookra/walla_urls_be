@@ -16,7 +16,7 @@ import { ValidUrlDto } from './dtos/ValidUrl.dto';
 import { ApiProperty } from '@nestjs/swagger';
 import * as dns from 'dns';
 import { promisify } from 'util';
-// const dns = require('dns');
+
 
 @Controller()
 export class AppController {
@@ -26,7 +26,7 @@ export class AppController {
   @ApiProperty({
     description:
       'this api would generate a unique short url for the url provided',
-    example: 'www.megasport.co.il',
+    example: 'https.megasport.co.il',
   })
   @Get('get_short_url/:protocol/:rest')
   async getShortUrl(
